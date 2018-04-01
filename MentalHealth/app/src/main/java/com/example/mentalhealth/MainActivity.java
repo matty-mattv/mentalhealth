@@ -1,8 +1,8 @@
 package com.example.mentalhealth;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,4 +23,15 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void clearEntries(View view) {
+        //IMPLEMENT LATER
+//        File countFile = new File(this.getFilesDir(), "counter.txt");
+//
+//        for(int i = 0; i < )
+//        File file = new File(this.getFilesDir(), "userEntry.txt");
+//
+//        if(file.delete()) {
+//            Toast.makeText(this, "All entries celared", Toast.LENGTH_LONG).show();
+//        }
+    }
 }

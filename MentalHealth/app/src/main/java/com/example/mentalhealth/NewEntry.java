@@ -31,8 +31,9 @@ import java.util.Date;
 
 public class NewEntry extends AppCompatActivity {
 
-    public static final String EXTRA_ENTRY = "com.example.mentalhealth,entry";
+    public static final String EXTRA_ENTRY = "com.example.mentalhealth.entry";
     private String dateTitle;
+    private String matchingQuote;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -50,11 +51,12 @@ public class NewEntry extends AppCompatActivity {
         );
     }
 
-    public void submitEntry() {
+    public void submitEntry(View view) {
 
         EditText entryInout = (EditText) findViewById(R.id.entryText);
         String entry = "?Entry=" + entryInout.getText().toString();
 
+        Log.d("Entry", entry);
         if(entry.length() == 0) {
             entry = "";
         }
@@ -72,17 +74,24 @@ public class NewEntry extends AppCompatActivity {
                     public void onResponse(String response) {
                         Log.d("Response String", response);
 
-                        String quote = "";
                         try {
                             JSONObject quoteObject = new JSONObject(response);
-                            quote = quoteObject.get("Entry").toString();
+                            //Need to change the json property
+                            matchingQuote = quoteObject.get("Entry").toString();
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Log.d("JSON Error", "Error in creating JSON object");
                         }
 
+                        //Save the entry and quote in a file before displaying
+                        try {
+                            saveEntry();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                         Intent intent = new Intent(NewEntry.this, DisplayQuote.class);
-                        intent.putExtra(EXTRA_ENTRY, quote);
+                        intent.putExtra(EXTRA_ENTRY, matchingQuote);
                         startActivity(intent);
                     }
                 }, new Response.ErrorListener() {
@@ -98,7 +107,7 @@ public class NewEntry extends AppCompatActivity {
     }
 
     //Save file internally before displaying quote
-    public void saveEntry(View view) throws IOException {
+    public void saveEntry() throws IOException {
         EditText entryTextInput = (EditText) findViewById(R.id.entryText);
         EditText entryTitleInput = (EditText) findViewById(R.id.entryTitle);
         String entryText = entryTextInput.getText().toString();
@@ -108,48 +117,25 @@ public class NewEntry extends AppCompatActivity {
 
         try {
             File file = new File(this.getFilesDir(), "userEntry" + counter + ".txt");
+            File quoteFile = new File(this.getFilesDir(), "quote" + counter + ".txt");
+
             file.createNewFile();
+            quoteFile.createNewFile();
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
             Log.d("Title", entryTitle);
             Log.d("Text", entryText);
-
-            writer.write(entryTitle + "\n" + entryText);
+            writer.write(entryTitle + "\n" + entryText );
             writer.close();
+
+            BufferedWriter quoteWriter = new BufferedWriter(new FileWriter(quoteFile, false));
+            quoteWriter.write(matchingQuote);
+            quoteWriter.close();
         } catch (IOException e) {
             Log.d("ReadWriteFile", "Unable to write to the userEntry.txt file.");
         }
-
-        submitEntry();
     }
 
-    public void testRead() {
-
-        File file = new File(this.getFilesDir(), "userEntry.txt");
-        String textFromFile = "";
-
-        if (file != null) {
-            StringBuilder stringBuilder = new StringBuilder();
-            BufferedReader reader = null;
-
-            try {
-                reader = new BufferedReader(new FileReader(file));
-                String line;
-
-                while( (line = reader.readLine()) != null) {
-                    textFromFile += line.toString();
-                    textFromFile += "***";
-                }
-                Log.d("Read File", textFromFile);
-                reader.close();
-            } catch (IOException e) {
-                Log.d("ReadWriteFile", "Unable to read the TestFile.txt file.");
-            }
-
-        }
-
-
-    }
 
     private String getCounter() throws IOException {
 
