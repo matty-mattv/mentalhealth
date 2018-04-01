@@ -2,14 +2,17 @@
 package com.example.mentalhealth;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -34,6 +37,7 @@ public class NewEntry extends AppCompatActivity {
     public static final String EXTRA_ENTRY = "com.example.mentalhealth.entry";
     private String dateTitle;
     private String matchingQuote;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -54,7 +58,7 @@ public class NewEntry extends AppCompatActivity {
     public void submitEntry(View view) {
 
         EditText entryInout = (EditText) findViewById(R.id.entryText);
-        String entry = "?Entry=" + entryInout.getText().toString();
+        String entry = "?entry=" + entryInout.getText().toString();
 
         Log.d("Entry", entry);
         if(entry.length() == 0) {
@@ -77,7 +81,7 @@ public class NewEntry extends AppCompatActivity {
                         try {
                             JSONObject quoteObject = new JSONObject(response);
                             //Need to change the json property
-                            matchingQuote = quoteObject.get("Entry").toString();
+                            matchingQuote = quoteObject.get("quote").toString();
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Log.d("JSON Error", "Error in creating JSON object");
@@ -172,5 +176,26 @@ public class NewEntry extends AppCompatActivity {
         }
 
         return counterString;
+    }
+
+    public void onButtonTap(View v){
+        takePhoto();
+    }
+
+    private void takePhoto() {
+        Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePhotoIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            ImageView imageView = (ImageView) findViewById(R.id.imageViewID);
+            imageView.setImageBitmap(imageBitmap);
+        }
     }
 }
