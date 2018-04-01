@@ -1,3 +1,7 @@
+drop database if exists quotes;
+create database quotes;
+use quotes;
+
 create table quotes
 (
   id     int           not null
