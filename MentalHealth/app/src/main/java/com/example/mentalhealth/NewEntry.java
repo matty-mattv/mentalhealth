@@ -51,6 +51,7 @@ public class NewEntry extends AppCompatActivity {
     }
 
     public void submitEntry() {
+
         EditText entryInout = (EditText) findViewById(R.id.entryText);
         String entry = "?Entry=" + entryInout.getText().toString();
 
@@ -59,10 +60,11 @@ public class NewEntry extends AppCompatActivity {
         }
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        String ipAddress = getString(R.string.ipAddress);
-        String url = "http://" + ipAddress + ":8080/new/Test" + entry;
+        String address = getString(R.string.address);
+        String url = address + entry;
 
         Log.d("Address", url);
+
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -102,22 +104,20 @@ public class NewEntry extends AppCompatActivity {
         String entryText = entryTextInput.getText().toString();
         String entryTitle = entryTitleInput.getText().toString();
 
-        try {
-            File file = new File(this.getFilesDir(), "userEntry.txt");
-            if (!file.exists()) {
-                file.createNewFile();
-            }
+        String counter = getCounter();
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file, true /*append*/));
+        try {
+            File file = new File(this.getFilesDir(), "userEntry" + counter + ".txt");
+            file.createNewFile();
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
             Log.d("Title", entryTitle);
             Log.d("Text", entryText);
 
-            writer.write(entryTitle + " " + entryText + "\n");
+            writer.write(entryTitle + "\n" + entryText);
             writer.close();
-
-
         } catch (IOException e) {
-            Log.d("ReadWriteFile", "Unable to write to the TestFile.txt file.");
+            Log.d("ReadWriteFile", "Unable to write to the userEntry.txt file.");
         }
 
         submitEntry();
@@ -149,5 +149,42 @@ public class NewEntry extends AppCompatActivity {
         }
 
 
+    }
+
+    private String getCounter() throws IOException {
+
+        File file = new File(this.getFilesDir(), "counter.txt");
+        String counterString = "";
+
+        if( ! file.exists()) {
+            file.createNewFile();
+            counterString = "0";
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+                writer.write(counterString);
+                writer.close();
+            } catch (IOException e) {
+                Log.d("CounterFile", "Unable to write to counter.txt file.");
+            }
+        }
+        else {
+            try {
+                //Read counter from file and increment then return
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                int counter = Integer.parseInt(reader.readLine().toString());
+                Log.d("***Counter***", Integer.toString(counter));
+                ++counter;
+                counterString = Integer.toString(counter);
+                reader.close();
+
+                BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+                writer.write(counterString);
+                writer.close();
+            } catch (IOException e) {
+                Log.d("CounterFile", "Unable to write to counter.txt file.");
+            }
+        }
+
+        return counterString;
     }
 }

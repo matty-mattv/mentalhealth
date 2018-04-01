@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -16,40 +15,58 @@ import java.io.IOException;
 public class ViewEntries extends AppCompatActivity {
 
     String[] titleArray;
-    String[] quoteArray;
+    String[] entryArray;
     ListView listView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_entries);
 
-        getArray();
+        try {
+            getArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        CustomListAdapter custoomList = new CustomListAdapter(this, titleArray, entryArray );
+        listView = (ListView) findViewById(R.id.listViewID);
+        listView.setAdapter(custoomList);
     }
 
-    public void getArray() {
-        File file = new File(this.getFilesDir(), "userEntry.txt");
+    public void getArray() throws IOException {
+        //Get the number of files, loop through and all entries and put in array
+       int numOfFiles = getCounter();
+       titleArray = new String[numOfFiles + 1];
+       entryArray = new String[numOfFiles + 1];
+       int numOfElem = 0;
 
-        if (file != null) {
-            StringBuilder stringBuilder = new StringBuilder();
-            BufferedReader reader = null;
+       for(int i = 0; i <= numOfFiles; ++i) {
+           String count = Integer.toString(i);
+           File file = new File(this.getFilesDir(), "userEntry" + count + ".txt");
 
-            try {
-                reader = new BufferedReader(new FileReader(file));
-                String line;
+           //If file exist, add title and entry to array
+           if(file.exists()) {
+               try {
+                   BufferedReader reader = new BufferedReader(new FileReader(file));
+                   String line = reader.readLine().toString();
+                   titleArray[numOfElem] = line;
 
-                while( (line = reader.readLine()) != null) {
+                   String entry = "";
+                   while( (line = reader.readLine()) != null) {
+                        entry += line.toString();
+                   }
+                   entryArray[numOfElem] = entry;
+                   ++numOfElem;
+                   reader.close();
 
-                }
-                reader.close();
+               } catch (IOException e) {
+                   Log.d("ReadWriteFile", "Unable to read the TestFile.txt file.");
+               }
+           }
 
-            } catch (IOException e) {
-                Log.d("ReadWriteFile", "Unable to read the TestFile.txt file.");
-            }
-
-            EditText textBoxInpit = (EditText) findViewById(R.id.testBox);
-            textBoxInpit.setText(textFromFile);
-        }
+       }
     }
 
     public void clearEntries(View view) {
@@ -58,5 +75,21 @@ public class ViewEntries extends AppCompatActivity {
         if(file.delete()) {
             Toast.makeText(this, "All entries celared", Toast.LENGTH_LONG).show();
         }
+    }
+
+    //Grab the count from counter.txt
+    private int getCounter() throws IOException {
+        int counter = 0;
+
+        try {
+            File file = new File(this.getFilesDir(), "counter.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            counter = Integer.parseInt(reader.readLine().toString());
+            Log.d("**^^Counter^^**", Integer.toString(counter));
+        } catch (IOException e) {
+            Log.d("CounterFile", "Unable to read from counter.txt file.");
+        }
+
+        return counter;
     }
 }
