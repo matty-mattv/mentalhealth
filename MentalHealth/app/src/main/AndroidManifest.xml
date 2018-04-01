@@ -3,6 +3,9 @@
           package="com.example.mentalhealth">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-feature android:name="android.hardware.camera"
+                  android:required="true" />
+
 
     <application
         android:allowBackup="true"
@@ -20,9 +23,11 @@
         </activity>
         <activity android:name=".NewEntry">
         </activity>
-        <activity android:name=".DisplayQuote">
+        <activity android:name=".DisplayQuote" android:parentActivityName=".MainActivity">
         </activity>
         <activity android:name=".ViewEntries">
+        </activity>
+        <activity android:name=".EntryDetail">
         </activity>
     </application>
 
