@@ -8,3 +8,6 @@ One of our teammates has a friend who suffered from bipolar, but yet she seemed 
 
 ## What It Does
 This app is a daily journal to help analyze and improve a persons's mental health through words of encouragement (using natural language processions) and a daily selfie to remind users to love themselves.
+
+## How to implement
+TODO: Add section
